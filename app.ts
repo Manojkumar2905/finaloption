@@ -19,53 +19,7 @@ const pool = new Pool({
 app.use(express.json());
 
 
-app.get('/uploads', async (req, res) => {
-  try {
-    const query = 'SELECT * FROM firstock';
-    const result = await pool.query(query);
-    const data = result.rows;
-
-    res.status(200).json(data);
-  } catch (error) {
-    console.error('Error retrieving data:', error);
-    res.status(500).json({ message: 'An error occurred while retrieving data' });
-  }
-});
-
-
-
-app.post('/upload', upload.single('file'), async (req, res,next) => {
-  try {
-    const fileSizeLimit = 10 * 1024; // 10KB
-
-    if (!req.file) {
-      res.status(400).json({ message: 'No file uploaded' });
-      return;
-    }
-
-    if (req.file.size > fileSizeLimit) {
-      res.status(400).json({ message: 'File size exceeds the limit' });
-      return;
-    }
-    const fileContent = req.file.buffer.toString('utf-8');
-    const rows = fileContent.split('\r\n');
-    const data = rows.map(row => {
-      const columns = row.split('|');
-      const trimmedColumns = columns.map(column => column.trim());
-      return trimmedColumns;
-    });
-    async function tableExists() {
-      const query = `
-        SELECT EXISTS (
-          SELECT 1
-          FROM information_schema.tables
-          WHERE table_schema = 'public'
-          AND table_name = 'firstock'
-        )
-      `;
-      const result = await pool.query(query);
-      return result.rows[0].exists;
-    }
+      
        
         const createTableQuery = `
         CREATE TABLE IF NOT EXISTS firstock (
@@ -186,6 +140,42 @@ app.post('/upload', upload.single('file'), async (req, res,next) => {
               $75, $76, $77, $78, $79, $80, $81, $82, $83, $84, $85)
           `;
 
+          app.get('/uploads', async (req, res) => {
+            try {
+              const query = 'SELECT * FROM firstock';
+              const result = await pool.query(query);
+              const data = result.rows;
+          
+              res.status(200).json(data);
+            } catch (error) {
+              console.error('Error retrieving data:', error);
+              res.status(500).json({ message: 'An error occurred while retrieving data' });
+            }
+          });
+          
+          
+          
+          app.post('/upload', upload.single('file'), async (req, res,next) => {
+            try {
+              const fileSizeLimit = 10 * 1024; // 10KB
+          
+              if (!req.file) {
+                res.status(400).json({ message: 'No file uploaded' });
+                return;
+              }
+          
+              if (req.file.size > fileSizeLimit) {
+                res.status(400).json({ message: 'File size exceeds the limit' });
+                return;
+              }
+              const fileContent = req.file.buffer.toString('utf-8');
+              const rows = fileContent.split('\r\n');
+              const data = rows.map(row => {
+                const columns = row.split('|');
+                const trimmedColumns = columns.map(column => column.trim());
+                return trimmedColumns;
+              });
+              
           for (const row of data) {
             const Row = row.map(value => value === '' ? null : value);
             await pool.query(insertQuery, Row);
