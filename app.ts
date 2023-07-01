@@ -18,7 +18,7 @@ const pool = new Pool({
 
 app.use(express.json());
 
-// GET request to retrieve data from the database
+
 app.get('/uploads', async (req, res) => {
   try {
     const query = 'SELECT * FROM firstock';
@@ -33,7 +33,7 @@ app.get('/uploads', async (req, res) => {
 });
 
 
-// File upload route
+
 app.post('/upload', upload.single('file'), async (req, res,next) => {
   try {
     const fileSizeLimit = 10 * 1024; // 10KB
@@ -199,11 +199,11 @@ app.post('/upload', upload.single('file'), async (req, res,next) => {
     res.status(200).json({ message: 'File uploaded and inserted into the database successfully', uploadedData });
   } catch (error) {
     console.error(error);
-    next(error); // Pass the error to the error handling middleware
+    next(error); 
   }
 });
 
-// Error handling middleware
+
 app.use((err, req, res, next) => {
   if (err.code === 'LIMIT_FILE_SIZE') {
     res.status(400).json({ message: 'File size exceeds the limit' });
@@ -212,12 +212,12 @@ app.use((err, req, res, next) => {
   }
 });
    
-      // Swagger UI setup
+      // Swagger UI 
       const swaggerDocument = require('./swagger.json');
       app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
       
       
-      // Start the server
+      // server
       const port = 3001;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
