@@ -65,7 +65,7 @@ app.use(express.json());
           password_reset VARCHAR(255),
           reserved10 VARCHAR(255),
           reserved11 VARCHAR(255),
-          dob DATE,
+          dob VARCHAR(255),
           reserved12 VARCHAR(255),
           reserved13 VARCHAR(255),
           user_status VARCHAR(255),
