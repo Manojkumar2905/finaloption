@@ -32,17 +32,23 @@ app.get('/uploads', async (req, res) => {
   }
 });
 
+
 // File upload route
 app.post('/upload', upload.single('file'), async (req, res,next) => {
   try {
-    const fileSizeLimit = 2 * 1024; // 10KB
+    const fileSizeLimit = 10 * 1024; // 10KB
+
+    if (!req.file) {
+      res.status(400).json({ message: 'No file uploaded' });
+      return;
+    }
 
     if (req.file.size > fileSizeLimit) {
       res.status(400).json({ message: 'File size exceeds the limit' });
       return;
     }
     const fileContent = req.file.buffer.toString('utf-8');
-    const rows = fileContent.split('\n');
+    const rows = fileContent.split('\r\n');
     const data = rows.map(row => {
       const columns = row.split('|');
       const trimmedColumns = columns.map(column => column.trim());
@@ -199,7 +205,11 @@ app.post('/upload', upload.single('file'), async (req, res,next) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  res.status(500).json({ message: 'An error occurred during file upload', error: err.message });
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    res.status(400).json({ message: 'File size exceeds the limit' });
+  } else {
+    res.status(500).json({ message: 'An error occurred during file upload', error: err.message });
+  }
 });
    
       // Swagger UI setup
